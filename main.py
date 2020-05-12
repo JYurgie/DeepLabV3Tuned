@@ -47,8 +47,9 @@ if __name__ == '__main__':
 
     # Specify the evalutation metrics
     # metrics = {'f1_score': f1_score, 'auroc': roc_auc_score}
-    metrics = {'dice_coeff': dice_coeffcient, 'overall_acc': me.overall_pixel_accuracy, 'avg_per_class_acc': me.per_class_pixel_accuracy,
-               'avg_jacc': me.jaccard_index, 'avg_dice': me.dice_coefficient}
+    #metrics = {'dice_coeff': dice_coeffcient, 'overall_acc': me.overall_pixel_accuracy, 'avg_per_class_acc': me.per_class_pixel_accuracy,
+     #          'avg_jacc': me.jaccard_index, 'avg_dice': me.dice_coefficient}
+    metrics = {'dice_coeff': dice_coeffcient, 'avg_jacc_m': me.jaccard_index_m, 'iou': me.iou}
 
 
     # Create the dataloader

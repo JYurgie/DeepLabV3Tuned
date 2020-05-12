@@ -17,7 +17,7 @@ def _fast_hist(true, pred, num_classes):
     hist = np.bincount(
         num_classes * true[mask] + pred[mask],
         minlength=num_classes ** 2,
-    ).reshape(num_classes, num_classes).astype(int)
+    ).reshape(num_classes, num_classes).astype(float)
     return hist
 
 
@@ -75,6 +75,34 @@ def jaccard_index(hist):
     jaccard = A_inter_B / (A + B - A_inter_B + EPS)
     avg_jacc = np.nanmean(jaccard)
     return avg_jacc
+
+def jaccard_index_m(y_true, y_pred):
+    """Computes the Jaccard index, a.k.a the Intersection over Union (IoU).
+    Args:
+        hist: confusion matrix.
+    Returns:
+        avg_jacc: the average per-class jaccard index.
+    """
+    EPS = 1e-10
+    intersection = np.sum(np.multiply(y_pred, y_true))
+    A_sum = np.sum(np.multiply(y_pred,y_pred))
+    B_sum = np.sum(np.multiply(y_true,y_true))
+    jaccard = intersection / (A_sum + B_sum - intersection + EPS)
+    avg_jacc = np.nanmean(jaccard)
+    return avg_jacc
+
+def iou(y_true, y_pred):
+    """Computes the Jaccard index, a.k.a the Intersection over Union (IoU).
+    Args:
+        hist: confusion matrix.
+    Returns:
+        avg_jacc: the average per-class jaccard index.
+    """
+    intersection = np.logical_and(y_pred, y_true)
+    union = np.logical_or(y_pred, y_pred)
+    iou_score = np.sum(intersection) / np.sum(union)
+
+    return iou_score
 
 
 def dice_coefficient(hist):

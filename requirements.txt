@@ -1,6 +1,6 @@
-pip install torch
-pip install torch-optimizer
-pip install opencv-python
-pip install torchvision
-pip install tqdm
-pip install python-csv
+torch
+torch-optimizer
+opencv-python
+torchvision
+tqdm
+python-csv

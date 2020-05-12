@@ -51,10 +51,11 @@ def train_model(model, criterion, dataloaders, optimizer, metrics, bpath, num_ep
 
                     loss = criterion(outputs['out'], masks)
 
-                    y_pred_hist = outputs['out'].data.cpu().numpy().ravel().astype(int)
-                    y_true_hist = masks.data.cpu().numpy().ravel().astype(int)
+                    y_pred_hist = outputs['out'].data.cpu().numpy().flatten().astype(int)
+                    y_true_hist = masks.data.cpu().numpy().flatten().astype(int)
 
-                    hist = me._fast_hist(y_true_hist, y_pred_hist, 1)
+
+                    #hist = me._fast_hist(y_true_hist, y_pred_hist, 2)
 
                     y_pred = outputs['out'].data.cpu().numpy().ravel().astype(float)
                     y_true = masks.data.cpu().numpy().ravel().astype(float)
@@ -81,6 +82,14 @@ def train_model(model, criterion, dataloaders, optimizer, metrics, bpath, num_ep
                             batchsummary[f'{phase}_{name}'].append(
                                 metric(hist))
                         if name == 'dice_coeff':
+                            # Use a classification threshold of 0.1
+                            batchsummary[f'{phase}_{name}'].append(
+                                metric(y_true, y_pred))
+                        if name == 'avg_jacc_m':
+                            # Use a classification threshold of 0.1
+                            batchsummary[f'{phase}_{name}'].append(
+                                metric(y_true, y_pred))
+                        if name == 'iou':
                             # Use a classification threshold of 0.1
                             batchsummary[f'{phase}_{name}'].append(
                                 metric(y_true, y_pred))

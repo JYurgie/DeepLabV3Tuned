@@ -180,13 +180,13 @@ def get_dataloader_sep_folder(data_dir, imageFolder='Image', maskFolder='Mask', 
     return dataloaders
 
 
-def get_dataloader_single_folder(data_dir, imageFolder='Images', maskFolder='Masks', fraction=0.99, batch_size=4):
+def get_dataloader_single_folder(data_dir, imageFolder='Images', maskFolder='Masks', fraction=0.2, batch_size=4):
     """
         Create training and testing dataloaders from a single folder.
     """
     data_transforms = {
-        'Train': transforms.Compose([Resize((512,512), (512,512)), ToTensor(), Normalize()]),
-        'Test': transforms.Compose([Resize((512,512), (512,512)), ToTensor(), Normalize()]),
+        'Train': transforms.Compose([Resize((64,64), (64,64)), ToTensor(), Normalize()]),
+        'Test': transforms.Compose([Resize((64,64), (64,64)), ToTensor(), Normalize()]),
     }
 
     image_datasets = {x: SegDataset(data_dir, imageFolder=imageFolder, maskFolder=maskFolder, seed=100, fraction=fraction, subset=x, transform=data_transforms[x])
