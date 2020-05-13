@@ -40,8 +40,8 @@ if __name__ == '__main__':
 
 
     # Specify the loss function
-    #criterion = torch.nn.MSELoss(reduction='mean')
-    criterion = diceloss()
+    criterion = torch.nn.MSELoss(reduction='mean')
+    #criterion = diceloss()
     # Specify the optimizer with a lower learning rate
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
 
@@ -49,7 +49,7 @@ if __name__ == '__main__':
     # metrics = {'f1_score': f1_score, 'auroc': roc_auc_score}
     #metrics = {'dice_coeff': dice_coeffcient, 'overall_acc': me.overall_pixel_accuracy, 'avg_per_class_acc': me.per_class_pixel_accuracy,
      #          'avg_jacc': me.jaccard_index, 'avg_dice': me.dice_coefficient}
-    metrics = {'dice_coeff': dice_coeffcient, 'avg_jacc_m': me.jaccard_index_m, 'iou': me.iou}
+    metrics = {'dice_coeff': dice_coeffcient, 'avg_jacc_m': me.jaccard_index_m, 'f1_score': f1_score}
 
 
     # Create the dataloader

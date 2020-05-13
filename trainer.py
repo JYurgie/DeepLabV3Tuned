@@ -93,6 +93,13 @@ def train_model(model, criterion, dataloaders, optimizer, metrics, bpath, num_ep
                             # Use a classification threshold of 0.1
                             batchsummary[f'{phase}_{name}'].append(
                                 metric(y_true, y_pred))
+                        if name == 'f1_score':
+                            # Use a classification threshold of 0.1
+                            batchsummary[f'{phase}_{name}'].append(
+                                metric(y_true > 0, y_pred > 0.1))
+                        if name == 'auroc':
+                            batchsummary[f'{phase}_{name}'].append(
+                                metric(y_true.astype('uint8'), y_pred, multi_class='ovr'))
                     # backward + optimize only if in training phase
                     if phase == 'Train':
                         loss.backward()
