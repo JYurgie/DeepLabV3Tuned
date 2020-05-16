@@ -8,6 +8,7 @@ import os
 import segmentation_metrics as me
 
 
+
 def train_model(model, criterion, dataloaders, optimizer, metrics, bpath, num_epochs=3):
     since = time.time()
     best_model_wts = copy.deepcopy(model.state_dict())
@@ -50,6 +51,7 @@ def train_model(model, criterion, dataloaders, optimizer, metrics, bpath, num_ep
                     #print("masks shape = ", masks.shape)
 
                     loss = criterion(outputs['out'], masks)
+
 
                     y_pred_hist = outputs['out'].data.cpu().numpy().flatten().astype(int)
                     y_true_hist = masks.data.cpu().numpy().flatten().astype(int)

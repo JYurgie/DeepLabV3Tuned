@@ -48,7 +48,7 @@ def ce_loss(true, logits, weights, ignore=255):
     )
     return ce_loss
 
-class diceloss(torch.nn.Module):
+class diceLoss(torch.nn.Module):
     def init(self):
         super(diceLoss, self).init()
     def forward(self,pred, target):
@@ -60,6 +60,71 @@ class diceloss(torch.nn.Module):
        B_sum = torch.sum(tflat * tflat)
        return 1 - ((2. * intersection + smooth) / (A_sum + B_sum + smooth))
 
+class BinaryDiceLoss(torch.nn.Module):
+    """Dice loss of binary class
+    Args:
+        smooth: A float number to smooth loss, and avoid NaN error, default: 1
+        p: Denominator value: \sum{x^p} + \sum{y^p}, default: 2
+        predict: A tensor of shape [N, *]
+        target: A tensor of shape same with predict
+        reduction: Reduction method to apply, return mean over batch if 'mean',
+            return sum if 'sum', return a tensor of shape [N,] if 'none'
+    Returns:
+        Loss tensor according to arg reduction
+    Raise:
+        Exception if unexpected reduction
+    """
+    def __init__(self, smooth=1, p=2, reduction='mean'):
+        super(BinaryDiceLoss, self).__init__()
+        self.smooth = smooth
+        self.p = p
+        self.reduction = reduction
+
+    def forward(self, predict, target):
+        assert predict.shape[0] == target.shape[0], "predict & target batch size don't match"
+        predict = predict.contiguous().view(predict.shape[0], -1)
+        target = target.contiguous().view(target.shape[0], -1)
+
+        num = torch.sum(torch.mul(predict, target), dim=1) + self.smooth
+        den = torch.sum(predict.pow(self.p) + target.pow(self.p), dim=1) + self.smooth
+
+        loss = 1 - num / den
+
+        if self.reduction == 'mean':
+            return loss.mean()
+        elif self.reduction == 'sum':
+            return loss.sum()
+        elif self.reduction == 'none':
+            return loss
+        else:
+            raise Exception('Unexpected reduction {}'.format(self.reduction))
+
+
+class DiceLossV2(torch.nn.Module):
+    def init(self):
+        super(DiceLossV2, self).init()
+    def forward(self, input, target):
+        #self.save_for_backward(input, target)
+        eps = 0.0001
+        self.inter = torch.dot(input.view(-1), target.view(-1))
+        self.union = torch.sum(input) + torch.sum(target) + eps
+
+        t = (2 * self.inter.float() + eps) / self.union.float()
+        return 1-t
+
+    # # This function has only a single output, so it gets only one gradient
+    # def backward(self, grad_output):
+    #
+    #     input, target = self.saved_variables
+    #     grad_input = grad_target = None
+    #
+    #     if self.needs_input_grad[0]:
+    #         grad_input = grad_output * 2 * (target * self.union - self.inter) \
+    #                      / (self.union * self.union)
+    #     if self.needs_input_grad[1]:
+    #         grad_target = None
+    #
+    #     return grad_input, grad_target
 
 def dice_coeffcient(target, pred):
     smooth = 1.
@@ -69,7 +134,7 @@ def dice_coeffcient(target, pred):
     return ((2. * intersection + smooth) / (A_sum + B_sum + smooth))
 
 
-def dice_loss(logits, true, eps=1e-7):
+class dice_loss(torch.nn.Module):
     """Computes the Sørensen–Dice loss.
     Note that PyTorch optimizers minimize a loss. In this
     case, we would like to maximize the dice loss so we
@@ -82,26 +147,31 @@ def dice_loss(logits, true, eps=1e-7):
     Returns:
         dice_loss: the Sørensen–Dice loss.
     """
-    num_classes = logits.shape[1]
-    if num_classes == 1:
-        true_1_hot = torch.eye(num_classes + 1)[true.squeeze(1)]
-        true_1_hot = true_1_hot.permute(0, 3, 1, 2).bool()
-        true_1_hot_f = true_1_hot[:, 0:1, :, :]
-        true_1_hot_s = true_1_hot[:, 1:2, :, :]
-        true_1_hot = torch.cat([true_1_hot_s, true_1_hot_f], dim=1)
-        pos_prob = torch.sigmoid(logits)
-        neg_prob = 1 - pos_prob
-        probas = torch.cat([pos_prob, neg_prob], dim=1)
-    else:
-        true_1_hot = torch.eye(num_classes)[true.squeeze(1)]
-        true_1_hot = true_1_hot.permute(0, 3, 1, 2).bool()
-        probas = F.softmax(logits, dim=1)
-    true_1_hot = true_1_hot.type(logits.type())
-    dims = (0,) + tuple(range(2, true.ndimension()))
-    intersection = torch.sum(probas * true_1_hot, dims)
-    cardinality = torch.sum(probas + true_1_hot, dims)
-    dice_loss = (2. * intersection / (cardinality + eps)).mean()
-    return (1 - dice_loss)
+    def init(self):
+        super(dice_loss, self).init()
+
+    def forward(self, logits, true):
+        eps = 1e-7
+        num_classes = logits.shape[1]
+        if num_classes == 1:
+            true_1_hot = torch.eye(num_classes + 1)[true.squeeze(1).long()]
+            true_1_hot = true_1_hot.permute(0, 3, 1, 2)
+            true_1_hot_f = true_1_hot[:, 0:1, :, :]
+            true_1_hot_s = true_1_hot[:, 1:2, :, :]
+            true_1_hot = torch.cat([true_1_hot_s, true_1_hot_f], dim=1)
+            pos_prob = torch.sigmoid(logits)
+            neg_prob = 1 - pos_prob
+            probas = torch.cat([pos_prob, neg_prob], dim=1)
+        else:
+            true_1_hot = torch.eye(num_classes)[true.squeeze(1).long()]
+            true_1_hot = true_1_hot.permute(0, 3, 1, 2)
+            probas = F.softmax(logits, dim=1)
+        true_1_hot = true_1_hot.type(logits.type())
+        dims = (0,) + tuple(range(2, true.ndimension()))
+        intersection = torch.sum(probas * true_1_hot, dims)
+        cardinality = torch.sum(probas + true_1_hot, dims)
+        dice_loss = (2. * intersection / (cardinality + eps)).mean()
+        return (1 - dice_loss)
 
 
 def jaccard_loss(true, logits, eps=1e-7):

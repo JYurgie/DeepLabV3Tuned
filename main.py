@@ -6,7 +6,8 @@ import datahandler
 import argparse
 import os
 import torch
-from segmentation_losses import diceloss, dice_coeffcient
+from segmentation_losses import diceLoss, dice_coeffcient, DiceLossV2, BinaryDiceLoss, dice_loss
+from losses import DiceLoss
 import segmentation_metrics as me
 
 """
@@ -40,8 +41,11 @@ if __name__ == '__main__':
 
 
     # Specify the loss function
-    criterion = torch.nn.MSELoss(reduction='mean')
-    #criterion = diceloss()
+    #criterion = torch.nn.MSELoss(reduction='mean')
+    #criterion = diceLoss()
+    #criterion = DiceLossV2()
+    #criterion = BinaryDiceLoss()
+    criterion = DiceLoss()
     # Specify the optimizer with a lower learning rate
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
 
