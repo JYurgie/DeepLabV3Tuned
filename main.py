@@ -47,7 +47,7 @@ if __name__ == '__main__':
     #criterion = BinaryDiceLoss()
     criterion = DiceLoss()
     # Specify the optimizer with a lower learning rate
-    optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
+    optimizer = torch.optim.Adam(model.parameters(), lr=1e-1)
 
     # Specify the evalutation metrics
     # metrics = {'f1_score': f1_score, 'auroc': roc_auc_score}
