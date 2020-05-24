@@ -6,7 +6,7 @@ import torch
 import numpy as np
 import os
 import segmentation_metrics as me
-
+from segmentation_losses import dice_loss_v3
 
 
 def train_model(model, criterion, dataloaders, optimizer, metrics, bpath, num_epochs=3):
@@ -49,6 +49,7 @@ def train_model(model, criterion, dataloaders, optimizer, metrics, bpath, num_ep
                     outputs = model(inputs)
                     #print("outputs shape = ", outputs['out'].shape)
                     #print("masks shape = ", masks.shape)
+                    #print(masks)
 
                     loss = criterion(outputs['out'], masks)
 
@@ -90,18 +91,18 @@ def train_model(model, criterion, dataloaders, optimizer, metrics, bpath, num_ep
                         if name == 'avg_jacc_m':
                             # Use a classification threshold of 0.1
                             batchsummary[f'{phase}_{name}'].append(
-                                metric(y_true, y_pred))
+                                metric(y_true > 0, y_pred > 0.1))
                         if name == 'iou':
                             # Use a classification threshold of 0.1
                             batchsummary[f'{phase}_{name}'].append(
-                                metric(y_true, y_pred))
+                                metric(y_true > 0, y_pred > 0.1))
                         if name == 'f1_score':
                             # Use a classification threshold of 0.1
                             batchsummary[f'{phase}_{name}'].append(
                                 metric(y_true > 0, y_pred > 0.1))
                         if name == 'auroc':
                             batchsummary[f'{phase}_{name}'].append(
-                                metric(y_true.astype('uint8'), y_pred, multi_class='ovr'))
+                                metric(y_true.astype('uint8'), y_pred))
                     # backward + optimize only if in training phase
                     if phase == 'Train':
                         loss.backward()

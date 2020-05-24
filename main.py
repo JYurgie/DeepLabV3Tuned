@@ -6,9 +6,9 @@ import datahandler
 import argparse
 import os
 import torch
-from segmentation_losses import diceLoss, dice_coeffcient, DiceLossV2, BinaryDiceLoss, dice_loss
+from segmentation_losses import diceLoss, dice_coeffcient, DiceLossV2, BinaryDiceLoss, dice_loss, dice_loss_v3
 from losses import DiceLoss
-import segmentation_metrics as me
+from segmentation_metrics import iou
 
 """
     Version requirements:
@@ -42,18 +42,23 @@ if __name__ == '__main__':
 
     # Specify the loss function
     #criterion = torch.nn.MSELoss(reduction='mean')
+    criterion = dice_loss_v3
+    #criterion = torch.nn.BCEWithLogitsLoss(reduction='mean')
+
+    # Possible Losses ** Experimental **
     #criterion = diceLoss()
     #criterion = DiceLossV2()
     #criterion = BinaryDiceLoss()
-    criterion = DiceLoss()
+    #criterion = DiceLoss()
+
     # Specify the optimizer with a lower learning rate
-    optimizer = torch.optim.Adam(model.parameters(), lr=1e-1)
+    optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
 
     # Specify the evalutation metrics
     # metrics = {'f1_score': f1_score, 'auroc': roc_auc_score}
-    #metrics = {'dice_coeff': dice_coeffcient, 'overall_acc': me.overall_pixel_accuracy, 'avg_per_class_acc': me.per_class_pixel_accuracy,
-     #          'avg_jacc': me.jaccard_index, 'avg_dice': me.dice_coefficient}
-    metrics = {'dice_coeff': dice_coeffcient, 'avg_jacc_m': me.jaccard_index_m, 'f1_score': f1_score}
+    # metrics = {'dice_coeff': dice_coeffcient, 'overall_acc': me.overall_pixel_accuracy, 'avg_per_class_acc': me.per_class_pixel_accuracy,
+    #          'avg_jacc': me.jaccard_index, 'avg_dice': me.dice_coefficient}
+    metrics = {'dice_coeff': dice_coeffcient, 'avg_jacc_m': jaccard_score, 'f1_score': f1_score, 'iou': iou, 'auroc': roc_auc_score}
 
 
     # Create the dataloader

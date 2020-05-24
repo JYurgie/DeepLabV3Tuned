@@ -101,17 +101,14 @@ class Resize(object):
 
     def __call__(self, sample):
         image, mask = sample['image'], sample['mask']
-        #print(image.shape)
-        #print(mask.shape)
+        #mask[mask > 0] = 255
+
         if len(image.shape) == 3:
              image = image.transpose(1, 2, 0)
         if len(mask.shape) == 3:
              mask = mask.transpose(1, 2, 0)
         mask = cv2.resize(mask, self.maskresize, cv2.INTER_AREA)
         image = cv2.resize(image, self.imageresize, cv2.INTER_AREA)
-        #mask = cv2.resize(mask, self.maskresize)
-        #image = cv2.resize(image, self.imageresize)
-
 
         if len(image.shape) == 3:
             image = image.transpose(2, 0, 1)
@@ -185,8 +182,8 @@ def get_dataloader_single_folder(data_dir, imageFolder='Images', maskFolder='Mas
         Create training and testing dataloaders from a single folder.
     """
     data_transforms = {
-        'Train': transforms.Compose([Resize((64,64), (64,64)), ToTensor(), Normalize()]),
-        'Test': transforms.Compose([Resize((64,64), (64,64)), ToTensor(), Normalize()]),
+        'Train': transforms.Compose([Resize((224,224), (224,224)), ToTensor(), Normalize()]),
+        'Test': transforms.Compose([Resize((224,224), (224,224)), ToTensor(), Normalize()]),
     }
 
     image_datasets = {x: SegDataset(data_dir, imageFolder=imageFolder, maskFolder=maskFolder, seed=100, fraction=fraction, subset=x, transform=data_transforms[x])
