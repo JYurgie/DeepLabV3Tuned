@@ -2,10 +2,12 @@ from torch.utils.data import Dataset, DataLoader
 import glob
 import os
 import numpy as np
+import sys
 import cv2
 import torch
 from torchvision import transforms, utils
 
+np.set_printoptions(threshold=sys.maxsize)
 
 class SegDataset(Dataset):
     """Segmentation Dataset"""
@@ -139,6 +141,8 @@ class Normalize(object):
 
     def __call__(self, sample):
         image, mask = sample['image'], sample['mask']
+        #print(mask)
+        mask[mask > 0] = 255
         return {'image': image.type(torch.FloatTensor)/255,
                 'mask': mask.type(torch.FloatTensor)/255}
 

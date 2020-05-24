@@ -9,6 +9,10 @@ import torch
 from segmentation_losses import diceLoss, dice_coeffcient, DiceLossV2, BinaryDiceLoss, dice_loss, dice_loss_v3
 from losses import DiceLoss
 from segmentation_metrics import iou
+import numpy as np
+import sys
+
+np.set_printoptions(threshold=sys.maxsize)
 
 """
     Version requirements:
