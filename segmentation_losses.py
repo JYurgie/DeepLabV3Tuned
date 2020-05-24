@@ -137,7 +137,7 @@ def dice_loss_v3(input, target):
     uniques = np.unique(target.numpy())
     assert set(list(uniques)) <= set([0, 1]), "target must only contain zeros and ones"
 
-    probs = F.softmax(input)
+    probs = F.softmax(input, dim=0)
     num = probs * target  # b,c,h,w--p*g
     num = torch.sum(num, dim=3)  # b,c,h
     num = torch.sum(num, dim=2)
