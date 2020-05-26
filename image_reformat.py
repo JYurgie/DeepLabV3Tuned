@@ -9,16 +9,6 @@ from PIL import Image
 from numpy import asarray
 
 
-"""
-This line imports SimpleImage for use here
-This line depends on the Pillow package being installed
-"""
-
-
-
-
-
-
 def jpgs_in_dir(dir):
     """
     (provided, DO NOT MODIFY)
