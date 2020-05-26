@@ -45,12 +45,15 @@ if __name__ == '__main__':
 
 
     # Specify the loss function
-    #criterion = torch.nn.MSELoss(reduction='mean')
-    criterion = dice_loss_v3
-    #criterion = torch.nn.BCEWithLogitsLoss(reduction='mean')
+    criterion = torch.nn.MSELoss(reduction='mean')
+    #criterion = diceLoss()
+
 
     # Possible Losses ** Experimental **
-    #criterion = diceLoss()
+    #criterion = torch.nn.BCEWithLogitsLoss(reduction='mean') # Probably not the right loss funciton for me
+    #criterion = torch.nn.CrossEntropyLoss(reduction='mean')
+    # LOSS DECREASED (SMALL DATASET) NO APPRECIABLE MASK
+    #criterion = dice_loss_v3()
     #criterion = DiceLossV2()
     #criterion = BinaryDiceLoss()
     #criterion = DiceLoss()

@@ -142,7 +142,7 @@ class Normalize(object):
     def __call__(self, sample):
         image, mask = sample['image'], sample['mask']
         #print(mask)
-        mask[mask > 0] = 255
+        #mask[mask > 0] = 255
         return {'image': image.type(torch.FloatTensor)/255,
                 'mask': mask.type(torch.FloatTensor)/255}
 
